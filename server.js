@@ -3,14 +3,13 @@ const express = require("express");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const https = require('https');
+const fs = require('fs');
 require("dotenv-safe").config();
 
 const app = express();
 
 let setCache = function (req, res, next) {
-  const period = 60 * 5 //Cache is in seconds, here is set to one minute
-
-  /*
+   /*
   Note: Any method can be cached, but would that make sense? 
   GET and HEAD are safe methods to Cache. 
   POST can be cached, but an idempotency key should be used.
@@ -26,8 +25,8 @@ let setCache = function (req, res, next) {
   DELETE	|yes	       |no
   PATCH	  |no	         |no
   */
-
-  if (req.method == 'GET') {
+  const period = 60 * 5 //Cache is in seconds, here is set to one minute
+  if (req.method === 'GET') {
     res.set('Cache-control', `public, max-age=${period}`);
   } else {
     // for the other requests set strict no caching parameters
@@ -55,27 +54,36 @@ app.use(helmet({
   }
 }));
 
-app.get('/api/students', (req, res) => {
+app.get('/AMBA/api/students', (req, res) => {
     return res.send(`GET HTTP method on students resource\n ${(new Date()).toString()}`);
-  });
+});
    
-  app.post('/api/students', (req, res) => {
+app.post('/AMBA/api/students', (req, res) => {
     return res.send('POST HTTP method on students resource');
-  });
+});
    
-  app.put('/api/students/:studentId', (req, res) => {
+app.put('/AMBA/api/students/:studentId', (req, res) => {
     return res.send(
       `PUT HTTP method on student/${req.params.studentId} resource`,
     );
-  });
+});
    
-  app.delete('/api/students/:studentId', (req, res) => {
+app.delete('/AMBA/api/students/:studentId', (req, res) => {
     return res.send(
       `DELETE HTTP method on student/${req.params.studentId} resource`,
     );
-  });
-   
-  app.listen(process.env.PORT, () => {
-    console.log(`Example app listening on port ${process.env.PORT}!`)
-  }
-);
+});
+
+const port = process.env.EXPRESS_PORT || 3001;
+if(process.env.EXPRESS_TLS.toUpperCase() === "TRUE"){
+  const options = {
+    key: fs.readFileSync(process.env.EXPRESS_TLS_KEY, 'utf8'),
+    cert: fs.readFileSync(process.env.EXPRESS_TLS_CRT, 'utf8')
+  };
+  console.log(`Enabling TLS...`); 
+  const server = https.createServer(options, app);
+  server.listen(port, () => console.log(`Server listening on port ${port}`));
+}else{
+  console.log(`Insecure Server...`);
+  app.listen(port, () => console.log(`Server listening on port ${port}`));
+}

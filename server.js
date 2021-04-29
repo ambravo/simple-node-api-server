@@ -4,11 +4,11 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const https = require('https');
 require("dotenv-safe").config();
- 
+
 const app = express();
 
 let setCache = function (req, res, next) {
-  const period = 60 * 1 //Cache is in seconds, here is set to one minute
+  const period = 60 * 5 //Cache is in seconds, here is set to one minute
 
   /*
   Note: Any method can be cached, but would that make sense? 
@@ -75,6 +75,7 @@ app.get('/api/students', (req, res) => {
     );
   });
    
-  app.listen(process.env.PORT, () =>
-  console.log(`Example app listening on port ${process.env.PORT}!`),
+  app.listen(process.env.PORT, () => {
+    console.log(`Example app listening on port ${process.env.PORT}!`)
+  }
 );

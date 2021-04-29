@@ -7,3 +7,5 @@ npm-debug.log
 
 certs/
 startNgrok.sh
+
+ignore*

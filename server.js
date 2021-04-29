@@ -4,9 +4,20 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const https = require('https');
 const fs = require('fs');
+const fadmin = require('firebase-admin');
 require("dotenv-safe").config();
 
 const app = express();
+
+//Firebase
+
+const fkey = JSON.parse(
+  Buffer.from(process.env.FIREBASE_KEY, 'base64').toString('binary')
+);
+fadmin.initializeApp({
+  credential: fadmin.credential.cert(fkey)
+});
+const db = fadmin.firestore();
 
 let setCache = function (req, res, next) {
    /*
@@ -54,21 +65,42 @@ app.use(helmet({
   }
 }));
 
-app.get('/AMBA/api/students', (req, res) => {
-    return res.send(`GET HTTP method on students resource\n ${(new Date()).toString()}`);
+app.get('/AMBA/api/students', async (req, res) => {
+    const snapshot = await db.collection('students').get(req.params.studentId);
+    snapshot.forEach((doc) => {
+      console.log(doc.id, '=>', doc.data());
+    });
+    return res.send(snapshot);
+});
+app.get('/AMBA/api/student/:studentId', async (req, res) => {
+  const snapshot = await db.collection('students').get();
+  snapshot.forEach((doc) => {
+    console.log(doc.id, '=>', doc.data());
+  });
+  return res.send(snapshot);
+});   
+app.post('/AMBA/api/student', async (req, res) => {
+    const studentID = req.body.id;
+    try{
+      const studentRecord = await db.collection('students').doc(studentID).set(req.body);
+      return res.send({
+        studentID: studentID,
+        ...studentRecord,
+        message: "Student Created"
+      });
+    }
+    catch(err){
+      return res.send(400);
+    }   
 });
    
-app.post('/AMBA/api/students', (req, res) => {
-    return res.send('POST HTTP method on students resource');
-});
-   
-app.put('/AMBA/api/students/:studentId', (req, res) => {
+app.put('/AMBA/api/student/:studentId', async (req, res) => {
     return res.send(
       `PUT HTTP method on student/${req.params.studentId} resource`,
     );
 });
    
-app.delete('/AMBA/api/students/:studentId', (req, res) => {
+app.delete('/AMBA/api/student/:studentId', async (req, res) => {
     return res.send(
       `DELETE HTTP method on student/${req.params.studentId} resource`,
     );

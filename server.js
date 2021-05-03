@@ -65,21 +65,24 @@ app.use(helmet({
   }
 }));
 
-app.get('/AMBA/api/students', async (req, res) => {
-    const snapshot = await db.collection('students').get(req.params.studentId);
-    snapshot.forEach((doc) => {
-      console.log(doc.id, '=>', doc.data());
-    });
-    return res.send(snapshot);
-});
-app.get('/AMBA/api/student/:studentId', async (req, res) => {
-  const snapshot = await db.collection('students').get();
-  snapshot.forEach((doc) => {
-    console.log(doc.id, '=>', doc.data());
-  });
-  return res.send(snapshot);
+app.get('/AMBA/api/students/:studentId?', async (req, res) => {
+  const studentId = req.params.studentId;
+  if (studentId){
+    const studentDoc = await db.collection('students').doc(studentId).get();
+    if (!studentDoc.exists) {
+      return res.send(404);
+    } else {
+      res.setHeader("Content-Type","application/json");
+      return res.send(studentDoc.data());
+    }
+  }
+  else{
+    const snapshot = await db.collection('students').get();
+    res.setHeader("Content-Type","application/json");
+    return res.send(snapshot.docs.map(doc => doc.data()));
+  }
 });   
-app.post('/AMBA/api/student', async (req, res) => {
+app.post('/AMBA/api/students', async (req, res) => {
     const studentID = req.body.id;
     try{
       const studentRecord = await db.collection('students').doc(studentID).set(req.body);
@@ -94,13 +97,13 @@ app.post('/AMBA/api/student', async (req, res) => {
     }   
 });
    
-app.put('/AMBA/api/student/:studentId', async (req, res) => {
+app.put('/AMBA/api/students/:studentId', async (req, res) => {
     return res.send(
       `PUT HTTP method on student/${req.params.studentId} resource`,
     );
 });
    
-app.delete('/AMBA/api/student/:studentId', async (req, res) => {
+app.delete('/AMBA/api/students/:studentId', async (req, res) => {
     return res.send(
       `DELETE HTTP method on student/${req.params.studentId} resource`,
     );

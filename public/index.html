@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>OU DEMO: Exchange Captcha challenge for an access Token</title>
+    <script type="text/javascript" src="env.js"></script>
+    <script type="text/javascript">
+      var verifyCallback = function(response) {
+        console.log(response);
+        fetch(`${localEnv.apim.host}${localEnv.apim.captcha_api_path}?code=${response}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById("token").innerHTML = JSON.stringify(data,null,2);
+            });
+      };
+      var onloadCallback = function() {
+        grecaptcha.render('ou_spa_example', {
+          'sitekey' : localEnv.captcha.sitekey,
+          'callback' : verifyCallback
+        });
+      };
+    </script>
+  </head>
+  <body>
+
+    <h2>OU Demo - Captcha</h2>
+    <p>Exchance a captcha challenge for an access token, open the console for extra details.</p>
+    <p>DEV API Artefact: <a href="https://prodeu2apiportalapimgmtpeu2-ecfbda5ea.eu2.hana.ondemand.com/shell/develop/api/AMBA_CaptchaAccessToken">
+        AMBA_CaptchaAccessToken</a></p>
+    <p>The implementation in APIM is very rough, it has to be parameterised in case a similar solution is adopted.</p><p>It supports CORS based on the API consumer, but should be restricted to domains from which the API can be called.</p>    
+    <br>
+    <form action="?" method="POST">
+      <div id="ou_spa_example"></div>
+    </form>
+
+    <div>
+        <br><br>
+        <p>API Access Token response:</p>
+        <textarea id="token" rows="5" cols="50"></textarea>
+    </div>
+
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+        async defer>
+    </script>
+  </body>
+</html>
+

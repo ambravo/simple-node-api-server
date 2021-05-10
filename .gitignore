@@ -9,3 +9,4 @@ certs/
 startNgrok.sh
 
 ignore*
+public/env.js

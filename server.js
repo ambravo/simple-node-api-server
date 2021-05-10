@@ -46,8 +46,9 @@ let setCache = function (req, res, next) {
   next();
 }
 
-app.use(express.json())
-app.use(setCache)
+app.use(express.static(__dirname + '/public'));
+app.use(express.json());
+app.use(setCache);
 app.use(morgan(':method :url :status :req[If-None-Match] :res[ETag] :res[content-length] - :response-time ms')); 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -107,6 +108,18 @@ app.delete('/AMBA/api/students/:studentId', async (req, res) => {
     return res.send(
       `DELETE HTTP method on student/${req.params.studentId} resource`,
     );
+});
+
+///Firestore Listeners
+const now = Date.now();
+const query = db.collection('students');
+
+const observer = query.onSnapshot(querySnapshot => {
+  querySnapshot.forEach(function(doc) {
+    doc.updateTime.toMillis() > now && console.log("Receiving update: ", doc.data())
+  });
+}, err => {
+  console.log(`Encountered error: ${err}`);
 });
 
 const port = process.env.EXPRESS_PORT || 3001;

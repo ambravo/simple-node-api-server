@@ -10,3 +10,4 @@ startNgrok.sh
 
 ignore*
 public/env.js
+public/envV3.js

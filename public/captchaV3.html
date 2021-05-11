@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <title>OU DEMO: Exchange Captcha challenge for an access Token</title>
+    <script type="text/javascript" src="envV3.js"></script>
+  </head>
+  <body>
+
+    <h2>OU Demo - Captcha - V3 - Invisible</h2>
+    <p>Exchange a captcha challenge for an access token. Open the browser's console for extra details.</p>
+    <p>DEV API Artefact: <a href="https://prodeu2apiportalapimgmtpeu2-ecfbda5ea.eu2.hana.ondemand.com/shell/develop/api/AMBA_CaptchaAccessToken_V3">
+      AMBA_CaptchaAccessToken_V3</a></p>
+    <div>
+        <br>
+        <p>APIM Reply: Access Token & reCaptcha Validation</p>
+        <textarea id="token" rows="14" cols="50"></textarea>
+    </div>
+
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdSm8saAAAAAP7ZUz5q3f04LN4fQJB0HeT7iXj2"></script>
+    <script>
+      grecaptcha.ready(function() {
+          console.log(`[${new Date().toLocaleTimeString()}] Page is loaded. Validating user vs bot...`);
+          grecaptcha.execute(localEnv.captcha.sitekey, {action: 'homepage'}).then(function(token) {
+            console.log(`[${new Date().toLocaleTimeString()}] Validation Token:`);
+            console.log(token);
+            console.log(`[${new Date().toLocaleTimeString()}] Geting Access Code and/or Score...`);
+            fetch(`${localEnv.apim.host}${localEnv.apim.captcha_api_path}?code=${token}`)
+              .then(response => response.json())
+              .then(data => {
+                  console.log(`[${new Date().toLocaleTimeString()}] APIM Response: `);
+                  console.log(data);
+                  document.getElementById("token").innerHTML = JSON.stringify(data,null,2);
+            });
+          });
+      });
+</script>
+  </body>
+</html>
+

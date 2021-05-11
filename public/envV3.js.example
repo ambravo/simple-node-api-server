@@ -1,0 +1,9 @@
+const localEnv = {
+    "captcha":{
+        "sitekey": "CAPTCHA_SITE_KEY"
+    },
+    "apim":{
+        "host" : "https://APIM_HOST",
+        "captcha_api_path":"/V3/AMBA/Captcha/Token"
+    }
+} 

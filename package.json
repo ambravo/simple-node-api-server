@@ -23,7 +23,7 @@
     "express": "^4.17.1",
     "firebase-admin": "^9.7.0",
     "helmet": "^4.5.0",
-    "mongoose": "^5.12.5",
+    "mongoose": "^5.13.14",
     "morgan": "^1.10.0",
     "ngrok": "^4.0.1",
     "nodemon": "^2.0.7"
